@@ -75,13 +75,21 @@ public class Display extends JFrame
 	}
 	
 	/**
-	 * Restarts the game by reseting the card array, and reassigning buttons
+	 * Re starts the game by reseting the card array, and reassigning buttons
 	 */
 	private void restart()
 	{
-		setContentPane();
+		gameTime.cancel();
+		// ensure content pane is empty
+		if(contentPane != null)
+		{
+			this.contentPane.removeAll();
+		}
 		setLayout();
 		startNewGame();
+		setTimer();
+		contentPane.revalidate();
+		contentPane.repaint();
 	}
 	
 	/**
@@ -90,12 +98,9 @@ public class Display extends JFrame
 	private void startNewGame()
 	{
 		this.gameEngine = new CardGameEngine(); // instantiate the game engine
-		// ensure content pane is empty
-		if(contentPane != null)
-		{
-			this.contentPane.removeAll();
-		}
 		
+		
+		// read image from file and set as card back
 		try 
 		{
 			this.backImg = ImageIO.read(getClass().getResource("resources/Card Images/cardback.png"));
@@ -139,7 +144,7 @@ public class Display extends JFrame
 		ArrayList<String> cards = this.gameEngine.getCards();
 		Iterator<String> nav 	= cards.iterator(); // iterator to navigate the card arraylist
 		String cardName; //name of the card
-		cardButtons = new JButton[cards.size()];
+		cardButtons = new JButton[cards.size()]; // set array size from size of array
 		int i = 0;
 		
 		// loop through cards and set to display
@@ -154,8 +159,7 @@ public class Display extends JFrame
 				
 			// add button to display
 			this.contentPane.add(cardButtons[i]);
-			i++;
-						
+			i++;						
 		}
 	}
 	
@@ -176,8 +180,7 @@ public class Display extends JFrame
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
-		this.contentPane.setMinimumSize(new Dimension(450,600));		
-		setLayout();
+		this.contentPane.setMinimumSize(new Dimension(450,600));
 	}
 	
 	/**
@@ -237,15 +240,11 @@ public class Display extends JFrame
 	}
 
 	/**
-	 * Custom method to pause program for specified time without halting the thread
-	 * @param millis
+	 * Clear out the array of clicked cards
 	 */
-	public static void pause(int millis){
-	    Date start = new Date();
-	    Date end = new Date();
-	    while(end.getTime() - start.getTime() < millis){
-	        end = new Date();
-	    }
+	private void clearClickedCards()
+	{
+		clickedCards = new JButton[2];
 	}
 	
 	/**
@@ -272,10 +271,12 @@ public class Display extends JFrame
 						if(img != null)
 						{
 							cardButtons[Integer.parseInt(button.getToolTipText())].setIcon(new ImageIcon(img));
+							
+							// get message whether cards were a match or not
 							String message = gameEngine.checkMatch(Integer.parseInt(button.getToolTipText()));
 							messageBox.setText(message);
 							
-							// store clicked card
+							// store the clicked card
 							if(clickedCards[0] == null)
 							{
 								clickedCards[0] = button;
@@ -285,25 +286,23 @@ public class Display extends JFrame
 								clickedCards[1] = button;
 							}
 							
-							// check message
+							// check message to see if the player won or not
 							if(message == "Right!")
 							{
 								for(JButton card : clickedCards)
 								{
 									cardButtons[Integer.parseInt(card.getToolTipText())].setEnabled(false);
 								}
+								clearClickedCards();
 							}
 							else if(message == "Wrong!")
 							{
 								resetCards = true;								
-							}
-							
-							
-							
+							}							
 						}
 						else
 						{
-							System.out.print("Image not found "+ button.getName());
+							System.out.print("Image not found for "+ button.getName());
 						}
 						updateScoreBox();
 					}
@@ -350,16 +349,13 @@ public class Display extends JFrame
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if(resetCards)
-		{			
+		{
 			for(JButton card : clickedCards)
 			{
 				cardButtons[Integer.parseInt(card.getToolTipText())].setIcon(new ImageIcon(this.backImg));
 			}
 			
-			if(clickedCards[1] != null)
-			{
-				clickedCards = new JButton[2];
-			}
+			clearClickedCards();
 			
 			resetCards = false;
 		}

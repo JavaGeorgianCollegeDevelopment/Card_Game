@@ -37,7 +37,7 @@ public class CardGameEngine {
 	/**
 	 * default constructor that sets the full card list values and resest the score to zero
 	 */
-	CardGameEngine(){//add all possible card names
+	public CardGameEngine(){//add all possible card names
 		for (int i=0; i<13; i++){
 			fullCardList[i]="card_"+(i+1)+"s";
 			fullCardList[i+13]="card_"+(i+1)+"c";

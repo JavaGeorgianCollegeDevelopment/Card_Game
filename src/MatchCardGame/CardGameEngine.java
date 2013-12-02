@@ -132,7 +132,7 @@ public class CardGameEngine {
 			return"";
 		}
 		else{ String message;
-			if (checkCard==selectedCards.get(checkSelcetedCardArrayIndex)){
+			if (checkCard.equals(selectedCards.get(checkSelcetedCardArrayIndex))){
 				addScore(1);
 				message="Right!";
 			}

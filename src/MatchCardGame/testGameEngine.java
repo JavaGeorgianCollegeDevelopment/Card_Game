@@ -8,6 +8,8 @@ public class testGameEngine {
 		System.out.println(cge.getHighScores());
 		System.out.println(cge.getHighScoreName());
 		System.out.println(cge.getCards());
+		System.out.println(cge.checkMatch(1));
+		System.out.println(cge.checkMatch(5));
 	}
 
 }

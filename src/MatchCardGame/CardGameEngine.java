@@ -2,6 +2,7 @@ package MatchCardGame;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +12,9 @@ import java.util.Random;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -52,6 +56,9 @@ public class CardGameEngine {
 		score=0;
 		//parse xml into java
 		//code from here is not entirely mine but I understand it and know what it does, from http://viralpatel.net/blogs/java-xml-xpath-tutorial-parse-xml/ 
+	
+	}
+	private void readHighScores(){
 		try{
 			FileInputStream file = new FileInputStream(new File(getClass().getResource("resources/highScores/highScores.xml").getPath()));
 		    DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -81,6 +88,7 @@ public class CardGameEngine {
 		    		System.out.println(e.getMessage());
 		    	}
 		    }
+		if(file!=null){file.close();}
 		}
 		catch (FileNotFoundException e) {
 			System.out.println(e.getMessage());
@@ -98,7 +106,6 @@ public class CardGameEngine {
 			System.out.println(e.getMessage());
 		} 
 	}
-	
 	/**
 	 * reset's score to zero and picks new cards
 	 * @return  ArrayList<String> selectedCards is the array list that contains all of the cards that were selected for this game's file name.
@@ -143,7 +150,10 @@ public class CardGameEngine {
 		return message;
 		}
 	}
-	private void addScore(int addValue){
+	/**add on score value
+	 * @param addValue
+	 */
+	public void addScore(int addValue){
 		score = score+addValue;
 	}
 	/**returns the score to the user
@@ -157,7 +167,8 @@ public class CardGameEngine {
 	 * also automatically assigns associated score name with score as "AAA"
 	 */
 	public int checkHighScore(){//TODO create a function checkHighScore (), returns int 0 - 5 where 5 is not in top five.
-		for(int y=0; y<5; y++){
+		this.readHighScores();
+		for(int y=0; y<highScores.size(); y++){
 			if(this.getScore()>highScores.get(y)){
 				//replace the old score with new one and bump every on else down one
 				highScores.add(y,this.getScore());
@@ -187,5 +198,61 @@ public class CardGameEngine {
 	 */
 	public ArrayList<Integer> getHighScores(){
 		return highScores;
+	}
+	
+	/** This function saves the score for updates and changes.
+	 * 
+	 */
+	public void saveScore(){
+		XMLOutputFactory xof =  XMLOutputFactory.newInstance();
+		XMLStreamWriter xtw=null;
+		try {
+			FileOutputStream outFile=new FileOutputStream(new File(getClass().getResource("resources/highScores/highScores.xml").getPath()),false);
+			//FileOutputStream outFile=new FileOutputStream("test.xml",false);
+			xtw = xof.createXMLStreamWriter(outFile,"UTF-8");
+			xtw.writeStartDocument("UTF-8", "1.0"); 
+			xtw.writeStartElement("highScores");
+			//System.out.println("xml outfile test");
+				for(int x=0; x<highScores.size(); x++){
+					//System.out.println("xml start record"+x);
+					xtw.writeStartElement("scores");
+					//System.out.println("xml start scores "+x);
+					xtw.writeAttribute( "place",String.valueOf((x+1)));
+						xtw.writeStartElement("name");
+						//System.out.println("xml name record"+x);
+							xtw.writeCharacters(highScoreName.get(x).toString());
+						xtw.writeEndElement();
+						xtw.writeStartElement("score");
+							xtw.writeCharacters(highScores.get(x).toString());
+						xtw.writeEndElement();
+					xtw.writeEndElement();
+					//System.out.println("xml end record"+x);
+				}
+			xtw.writeEndElement();
+			xtw.writeEndDocument();
+			//System.out.println("end of try");
+		} catch (XMLStreamException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+		}
+		finally
+		{  //System.out.println("start finally");
+			if (xtw != null)
+			{
+				try
+				{
+					//System.out.println("xtw if not null");
+					//xtw.flush();
+					xtw.close();
+				}
+			catch (XMLStreamException e)
+		    	{
+				e.printStackTrace();
+		    	}
+			}
+		}
 	}
 }

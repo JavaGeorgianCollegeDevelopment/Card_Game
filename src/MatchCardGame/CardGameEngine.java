@@ -24,10 +24,10 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @author Kevin Kan
- *@version 1.1 
- *@since November 25 2013
  *Handles back end of the card game programming.
+ * @author Kevin Kan
+ *@version 1.3 
+ *@since December 3 2013
  */
 public class CardGameEngine {
 	//var
@@ -37,6 +37,7 @@ public class CardGameEngine {
 	private ArrayList<String> selectedCards=new ArrayList<String>(),highScoreName= new ArrayList<String>();
 	private String checkCard="";
 	private int score;
+	final int NUMBER_OF_PAIRS = 8;
 
 	/**
 	 * default constructor that sets the full card list values and resest the score to zero
@@ -53,10 +54,7 @@ public class CardGameEngine {
 			System.out.println(fullCardList[i+26]);
 			System.out.println(fullCardList[i+39]);*/
 		}
-		score=0;
-		//parse xml into java
-		//code from here is not entirely mine but I understand it and know what it does, from http://viralpatel.net/blogs/java-xml-xpath-tutorial-parse-xml/ 
-	
+		score=0; 
 	}
 	private void readHighScores(){
 		try{
@@ -65,19 +63,21 @@ public class CardGameEngine {
 		    DocumentBuilder builder =  builderFactory.newDocumentBuilder();
 		    Document xmlDocument = builder.parse(file);
 		    XPath xPath =  XPathFactory.newInstance().newXPath();
-		//end of borrowed code
 		    for(int t=1;t<6;t++){
 		    	String expressionNames = "/highScores/scores[@place='"+t+"']/name";
 		    	String expressionScore = "/highScores/scores[@place='"+t+"']/score";
 		    	try{
 		    		String scoreNameTemp=xPath.compile(expressionNames).evaluate(xmlDocument);
-		    		int scoreTemp=(Integer.parseInt(xPath.compile(expressionScore).evaluate(xmlDocument)));
-		    		if((scoreTemp==0)||(scoreNameTemp==null)){
-		    			highScores.add(1);
-			    		highScoreName.add("AAA");
+		    		String scoreTemp;
+		    		scoreTemp=(xPath.compile(expressionScore).evaluate(xmlDocument));
+		    		if((scoreTemp=="")||(scoreNameTemp=="")){
+		    			/*System.out.println("test name temp"+scoreNameTemp);
+		    			System.out.println("test score temp "+scoreTemp);
+		    			highScores.add(0);
+			    		highScoreName.add("AAA");*/
 		    		}
 		    		else{
-		    			highScores.add(scoreTemp);
+		    			highScores.add(Integer.parseInt(scoreTemp));
 			    		highScoreName.add(scoreNameTemp);
 		    		}
 		    		}
@@ -112,20 +112,22 @@ public class CardGameEngine {
 	 * returns an arraylist size 16 that has been shuffled and made up of 8 pairs.
 	 */
 	public ArrayList<String> getCards(){// function getCards (), return string array with picture names. formmated by card_#suit
-		final int NUMBER_OF_PAIRS = 8;
 		score=0;
-
 		long seed = System.nanoTime()*15215/6512;//get system time to use as a seed for random
 		selectedCards.clear();//clear previous set of selected cards.
 		String cardName;
 		Collections.shuffle(Arrays.asList(fullCardList),new Random (seed));
+		Collections.shuffle(Arrays.asList(fullCardList),new Random (seed*5));
+		Collections.shuffle(Arrays.asList(fullCardList),new Random (seed*6));
 		for (int j=0; j<NUMBER_OF_PAIRS; j++){
 			cardName= fullCardList[j];
 			selectedCards.add(cardName);
 			selectedCards.add(cardName);
 		}
-		seed = System.nanoTime()*42/3;//re shuffle seed
+		seed = System.nanoTime()*42/3;//re-shuffle seed
 		Collections.shuffle(selectedCards,new Random (seed));//scramble the selectedCards array randomly.
+		Collections.shuffle(selectedCards,new Random (seed+90));//scramble the selectedCards array randomly.
+		Collections.shuffle(selectedCards,new Random (seed/100+60));//scramble the selectedCards array randomly.
 		return selectedCards;
 	}
 	
@@ -138,7 +140,8 @@ public class CardGameEngine {
 			checkCard=selectedCards.get(checkSelcetedCardArrayIndex);
 			return"";
 		}
-		else{ String message;
+		else{ 
+			String message;
 			if (checkCard.equals(selectedCards.get(checkSelcetedCardArrayIndex))){
 				addScore(1);
 				message="Right!";
@@ -168,13 +171,19 @@ public class CardGameEngine {
 	 */
 	public int checkHighScore(){//TODO create a function checkHighScore (), returns int 0 - 5 where 5 is not in top five.
 		this.readHighScores();
-		for(int y=0; y<highScores.size(); y++){
+		for(int y=0; y<highScores.size()&&y<5; y++){
 			if(this.getScore()>highScores.get(y)){
 				//replace the old score with new one and bump every on else down one
 				highScores.add(y,this.getScore());
 				highScoreName.add(y,"AAA");
 				return y;
 			}
+		}
+		if(highScores.size()<5){//if there is less than 5 high scores and did not beat others, add to end
+			highScores.add(this.getScore());
+			highScoreName.add("AAA");
+			System.out.println("test scores");
+			return highScores.size();//returns last position of arraylist
 		}
 		return 5;//failing that not better than any other score return 5
 	}
@@ -184,7 +193,10 @@ public class CardGameEngine {
 	 * @param newName string of new name they wish to change the score to.
 	 */
 	public void changeInitials(int place, String newName){//TODO create a function changeInitials (int arraylocation, string newName)
-		highScoreName.set(place,newName);
+		if((place< highScoreName.size())&&(place>=0)){
+			highScoreName.set(place,newName);
+			this.saveScore();
+		}
 	}
 	
 	/**Gets arraylist of highScorers Names
@@ -213,7 +225,7 @@ public class CardGameEngine {
 			xtw.writeStartDocument("UTF-8", "1.0"); 
 			xtw.writeStartElement("highScores");
 			//System.out.println("xml outfile test");
-				for(int x=0; x<highScores.size(); x++){
+				for(int x=0; (x<highScores.size())&&(x<5); x++){
 					//System.out.println("xml start record"+x);
 					xtw.writeStartElement("scores");
 					//System.out.println("xml start scores "+x);
@@ -245,7 +257,7 @@ public class CardGameEngine {
 				try
 				{
 					//System.out.println("xtw if not null");
-					//xtw.flush();
+					xtw.flush();
 					xtw.close();
 				}
 			catch (XMLStreamException e)

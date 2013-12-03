@@ -38,6 +38,7 @@ public class CardGameEngine {
 	private String checkCard="";
 	private int score;
 	final int NUMBER_OF_PAIRS = 8;
+	final int NUMBER_OF_HIGHSCORES=5;
 
 	/**
 	 * default constructor that sets the full card list values and resest the score to zero
@@ -171,7 +172,7 @@ public class CardGameEngine {
 	 */
 	public int checkHighScore(){//TODO create a function checkHighScore (), returns int 0 - 5 where 5 is not in top five.
 		this.readHighScores();
-		for(int y=0; y<highScores.size()&&y<5; y++){
+		for(int y=0; y<highScores.size()&&y<NUMBER_OF_HIGHSCORES; y++){
 			if(this.getScore()>highScores.get(y)){
 				//replace the old score with new one and bump every on else down one
 				highScores.add(y,this.getScore());
@@ -179,13 +180,13 @@ public class CardGameEngine {
 				return y;
 			}
 		}
-		if(highScores.size()<5){//if there is less than 5 high scores and did not beat others, add to end
+		if(highScores.size()<NUMBER_OF_HIGHSCORES){//if there is less than 5 high scores and did not beat others, add to end
 			highScores.add(this.getScore());
 			highScoreName.add("AAA");
 			System.out.println("test scores");
 			return highScores.size();//returns last position of arraylist
 		}
-		return 5;//failing that not better than any other score return 5
+		return NUMBER_OF_HIGHSCORES;//failing that not better than any other score return 5
 	}
 	
 	/** Changes the highscore's name based on the place they ranked.
@@ -225,7 +226,7 @@ public class CardGameEngine {
 			xtw.writeStartDocument("UTF-8", "1.0"); 
 			xtw.writeStartElement("highScores");
 			//System.out.println("xml outfile test");
-				for(int x=0; (x<highScores.size())&&(x<5); x++){
+				for(int x=0; (x<highScores.size())&&(x<NUMBER_OF_HIGHSCORES); x++){
 					//System.out.println("xml start record"+x);
 					xtw.writeStartElement("scores");
 					//System.out.println("xml start scores "+x);

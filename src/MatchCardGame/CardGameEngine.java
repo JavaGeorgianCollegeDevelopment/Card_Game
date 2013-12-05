@@ -172,21 +172,24 @@ public class CardGameEngine {
 	 */
 	public int checkHighScore(){//TODO create a function checkHighScore (), returns int 0 - 5 where 5 is not in top five.
 		this.readHighScores();
-		for(int y=0; y<highScores.size()&&y<NUMBER_OF_HIGHSCORES; y++){
-			if(this.getScore()>highScores.get(y)){
-				//replace the old score with new one and bump every on else down one
-				highScores.add(y,this.getScore());
-				highScoreName.add(y,"AAA");
-				return y;
+		if(highScores.size()>0){
+			for(int y=0; y<highScores.size()&&y<NUMBER_OF_HIGHSCORES; y++){
+				if(this.getScore()>highScores.get(y)){
+					//replace the old- score with new one and bump every on else down one
+					highScores.add(y,this.getScore());
+					highScoreName.add(y,"AAA");
+					return y;
+				}
 			}
 		}
 		if(highScores.size()<NUMBER_OF_HIGHSCORES){//if there is less than 5 high scores and did not beat others, add to end
 			highScores.add(this.getScore());
 			highScoreName.add("AAA");
-			System.out.println("test scores");
-			return highScores.size();//returns last position of arraylist
+			return highScores.size()-1;//returns last position of arraylist
 		}
-		return NUMBER_OF_HIGHSCORES;//failing that not better than any other score return 5
+		else{
+			return NUMBER_OF_HIGHSCORES;//failing that not better than any other score return 5
+		}
 	}
 	
 	/** Changes the highscore's name based on the place they ranked.
@@ -195,6 +198,7 @@ public class CardGameEngine {
 	 */
 	public void changeInitials(int place, String newName){//TODO create a function changeInitials (int arraylocation, string newName)
 		if((place< highScoreName.size())&&(place>=0)){
+			//System.out.println("test place "+place);
 			highScoreName.set(place,newName);
 			this.saveScore();
 		}
@@ -204,12 +208,14 @@ public class CardGameEngine {
 	 * @return highScoresName ArrayList<String>
 	 */
 	public ArrayList<String> getHighScoreName(){
+		this.readHighScores();
 		return highScoreName;
 	}
 	/**Gets array list of highScore scores
 	 * @return highScores ArrayList<Integer>
 	 */
 	public ArrayList<Integer> getHighScores(){
+		this.readHighScores();
 		return highScores;
 	}
 	

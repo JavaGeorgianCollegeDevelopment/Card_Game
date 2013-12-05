@@ -85,10 +85,10 @@ public class HighScores extends JFrame
 		Iterator<String> nameNav 	= highScoreNames.iterator();
 		Iterator<Integer> scoreNav	= highScoreValues.iterator();
 		
-		JLabel placeHolder 	= new JLabel("  ");
+		JLabel placeHolder 	= new JLabel("HighScores");
 		JLabel nameHeader 	= new JLabel("Name");
 		JLabel scoreHeader	= new JLabel("High Score");
-		contentPane.add(placeHolder);
+		//contentPane.add(placeHolder);
 		contentPane.add(nameHeader);
 		contentPane.add(scoreHeader);
 		

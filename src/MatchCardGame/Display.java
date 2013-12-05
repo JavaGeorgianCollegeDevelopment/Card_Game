@@ -190,7 +190,7 @@ public class Display extends JFrame
 	 */
 	private void setLayout()
 	{
-		GridLayout mainBox = new GridLayout(5, 1, 5, 5);
+		GridLayout mainBox = new GridLayout(5, 4, 5, 5);
 		this.contentPane.setLayout(mainBox);	
 	}
 	

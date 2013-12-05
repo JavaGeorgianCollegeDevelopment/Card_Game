@@ -17,7 +17,7 @@ public class testGameEngine {
 		System.out.println(cge.checkMatch(5));
 		//cge.changeInitials(3,"KK");
 		cge.addScore(6);
-		cge.checkHighScore();
+		System.out.println("position "+cge.checkHighScore());
 		System.out.println(cge.getHighScores());
 		System.out.println(cge.getHighScoreName());
 		//cge.saveScore();

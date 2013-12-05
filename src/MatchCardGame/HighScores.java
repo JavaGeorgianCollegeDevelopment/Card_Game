@@ -54,7 +54,7 @@ public class HighScores extends JFrame
 	 */
 	private void setJFrame()
 	{
-		setBounds(100, 100, 300, 400);
+		setBounds(100, 100, 850, 400);
 	}
 	
 	/**
@@ -65,7 +65,7 @@ public class HighScores extends JFrame
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
-		this.contentPane.setMinimumSize(new Dimension(450,600));
+		//this.contentPane.setMinimumSize(new Dimension(850,400));
 	}
 	
 	/**
@@ -73,11 +73,11 @@ public class HighScores extends JFrame
 	 */
 	private void setLayout()
 	{
-		int rowAdder = 2;		
-		
-		GridLayout mainBox = new GridLayout(highScoreNames.size() + rowAdder, 3); // set grid size based on number of high scores
+		int rowAdder = 3;		
+		System.out.print(highScoreNames.size());
+		GridLayout mainBox = new GridLayout(highScoreNames.size() + rowAdder, 4, 5, 5); // set grid size based on number of high scores
 		System.out.print(mainBox.getColumns());
-		this.contentPane.setLayout(mainBox);	
+		this.contentPane.setLayout(mainBox);
 	}
 	
 	private void initiate()
@@ -85,10 +85,12 @@ public class HighScores extends JFrame
 		Iterator<String> nameNav 	= highScoreNames.iterator();
 		Iterator<Integer> scoreNav	= highScoreValues.iterator();
 		
-		JLabel placeHolder 	= new JLabel("HighScores");
+		JLabel header 	= new JLabel("HighScores");
 		JLabel nameHeader 	= new JLabel("Name");
 		JLabel scoreHeader	= new JLabel("High Score");
-		//contentPane.add(placeHolder);
+		
+
+		contentPane.add(header);
 		contentPane.add(nameHeader);
 		contentPane.add(scoreHeader);
 		
@@ -125,7 +127,10 @@ public class HighScores extends JFrame
 		// if user had a highscore make name alterable, otherwise set as label
 		if(highScorer)
 		{			
-			this.newName 	= new JTextField("Enter name here");
+			JLabel newHeader  = new JLabel("");
+			this.newName 	= new JTextField();
+			newName.setToolTipText("Enter Name Here");
+			contentPane.add(newHeader);
 			contentPane.add(newName);			
 		}
 		else
@@ -136,10 +141,10 @@ public class HighScores extends JFrame
 		
 		// show last of users score
 		JLabel newScore 	= new JLabel(Integer.toString(gameEngine.getScore()));
-		contentPane.add(placeHolder);
 		contentPane.add(newScore);
 		
-		contentPane.add(placeHolder);
+		JLabel placeHolder1 	= new JLabel("");
+		contentPane.add(placeHolder1);
 		if(highScorer)
 		{
 			JButton addScoreButton = new JButton("Save");
@@ -149,13 +154,17 @@ public class HighScores extends JFrame
 		}
 		else
 		{
-			contentPane.add(placeHolder);
+			JLabel placeHolder2 = new JLabel("");
+			contentPane.add(placeHolder2);
 		}
 		
 		JButton exitButton = new JButton("Exit");
 		exitButton.setName(EXITBUTTONNAME);
 		exitButton.addMouseListener(this);
 		contentPane.add(exitButton);
+		
+		GridLayout mainBox = (GridLayout) contentPane.getLayout();
+		System.out.print(mainBox.getColumns());		
 	}
 
 	@Override
@@ -192,7 +201,11 @@ public class HighScores extends JFrame
 				}
 				else if(button.getName() == ADDBUTTONNAME)
 				{
-					gameEngine.changeInitials(gameEngine.checkHighScore(), newName.getText());
+					if(newName.getText().trim() != "")
+					{
+						gameEngine.changeInitials(gameEngine.checkHighScore(), newName.getText());
+						this.dispose();
+					}
 				}
 			}
 			catch(ClassCastException ex)

@@ -22,6 +22,7 @@ public class testGameEngine {
 		System.out.println(cge.getHighScoreName());
 		HighScores testScore = new HighScores(cge);
 		testScore.setVisible(true);
+		
 		//cge.saveScore();
 	}
 

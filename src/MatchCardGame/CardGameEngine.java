@@ -58,6 +58,8 @@ public class CardGameEngine {
 		score=0; 
 	}
 	private void readHighScores(){
+		highScoreName.clear();
+		highScores.clear();
 		try{
 			FileInputStream file = new FileInputStream(new File(getClass().getResource("resources/highScores/highScores.xml").getPath()));
 		    DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -208,7 +210,6 @@ public class CardGameEngine {
 	 * @return highScoresName ArrayList<String>
 	 */
 	public ArrayList<String> getHighScoreName(){
-		highScoreName.clear();
 		this.readHighScores();
 		return highScoreName;
 	}
@@ -216,7 +217,6 @@ public class CardGameEngine {
 	 * @return highScores ArrayList<Integer>
 	 */
 	public ArrayList<Integer> getHighScores(){
-		highScores.clear();
 		this.readHighScores();
 		return highScores;
 	}

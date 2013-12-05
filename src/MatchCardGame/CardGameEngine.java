@@ -208,6 +208,7 @@ public class CardGameEngine {
 	 * @return highScoresName ArrayList<String>
 	 */
 	public ArrayList<String> getHighScoreName(){
+		highScoreName.clear();
 		this.readHighScores();
 		return highScoreName;
 	}
@@ -215,6 +216,7 @@ public class CardGameEngine {
 	 * @return highScores ArrayList<Integer>
 	 */
 	public ArrayList<Integer> getHighScores(){
+		highScores.clear();
 		this.readHighScores();
 		return highScores;
 	}

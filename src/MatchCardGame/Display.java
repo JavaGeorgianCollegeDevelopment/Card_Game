@@ -9,7 +9,6 @@ import java.awt.Label;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -17,16 +16,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.IIOByteBuffer;
-import javax.imageio.stream.ImageInputStream;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
-import org.xml.sax.InputSource;
 
 /**
  * Main Gui class
@@ -37,7 +32,7 @@ public class Display extends JFrame
 	implements MouseListener{
 
 	/**
-	 * 
+	 * variables
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -50,6 +45,7 @@ public class Display extends JFrame
 	private boolean resetCards;
 	private Timer gameTime;
 	private static final int GAMETIME = 60;
+	private boolean gameEnd = false;
 
 	/**
 	 * Launch the application.
@@ -203,10 +199,8 @@ public class Display extends JFrame
 	 */
 	private void setTimer()
 	{
-		Date start = new Date();
-		start.setTime(System.currentTimeMillis());
 		gameTime = new Timer();
-		gameTime.scheduleAtFixedRate(iterateTime(), start, 1000);
+		gameTime.scheduleAtFixedRate(iterateTime(), 1000, 1000);
 	}
 	
 	/**
@@ -222,41 +216,18 @@ public class Display extends JFrame
 			 */
 			@Override
 			public void run() {
-				int time = Integer.parseInt(timerBox.getText());
-				boolean allDisabled = true;
+				int time = Integer.parseInt(timerBox.getText()); // get the time from the time box
+				
+				// decrement the time and set the time
 				time--;
 				timerBox.setText(Integer.toString(time));	
 				
+				// check if the game is over
+				gameEnd = checkEnd();	
 				
-				// Disable cards if player is out of time, otherwise check to see if player has finished the game
-				if(time == 0)
+				if(gameEnd)
 				{
-					for(JButton card:cardButtons)
-					{
-						card.setEnabled(false);
-					}
-					gameTime.cancel(); // stops the timer
-				}
-				else
-				{
-					for(JButton card : cardButtons)
-					{
-						if(card.isEnabled())
-						{
-							allDisabled = false;
-						}
-					}
-					
-					if(allDisabled)
-					{
-						gameTime.cancel();	// stops the timer			
-					}
-				}		
-				
-				
-				if(time == 0 || allDisabled)
-				{
-					messageBox.setText("Game Over!");
+					gameFinish();
 				}
 			}
 		};		
@@ -282,7 +253,7 @@ public class Display extends JFrame
 	 * Custom pause feature to avoid thread halting
 	 * @param millis time to pause in milliseconds
 	 */
-	public void pause(int millis)
+	private void pause(int millis)
 	{
 		 Date start = new Date();
 		 Date end = new Date();
@@ -292,23 +263,50 @@ public class Display extends JFrame
 		 }
 	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
+	private boolean checkEnd()
+	{		
+		int time = Integer.parseInt(timerBox.getText());
 		
-	}	
+		// Disable cards if player is out of time, otherwise check to see if player has finished the game
+		if(time == 0)
+		{
+			for(JButton card:cardButtons)
+			{
+				card.setEnabled(false);
+			}
+			gameTime.cancel(); // stops the timer
+			return true;
+		}
+		// Check if any cards are enabled
+		for(JButton card : cardButtons)
+		{
+			if(card.isEnabled())
+			{
+				return false;
+			}
+		}
 		
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		return true;
+	}
+	
+	private void gameFinish()
+	{
+		gameTime.cancel();
+		gameEngine.addScore(Integer.parseInt(timerBox.getText()));
+		updateScoreBox();
+		messageBox.setText("Game Over!");
+		displayHighscore();
 	}
 
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+	private void displayHighscore()
+	{
+		try {
+			HighScores highScores = new HighScores(this.gameEngine);
+			highScores.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-
 	/**
 	 * On mouse click flip the card, if it is the second card, use the game engine to check if it is a match and update 
 	 * messages, and score
@@ -355,18 +353,18 @@ public class Display extends JFrame
 								{
 									cardButtons[Integer.parseInt(card.getToolTipText())].setEnabled(false);
 								}
-								clearClickedCards();
+								clearClickedCards();								
 							}
 							else if(message == "Wrong!")
 							{
-								resetCards = true;								
+								resetCards = true;	// set card flipping flag to on							
 							}							
 						}
 						else
 						{
 							System.out.print("Image not found for "+ button.getName());
 						}
-						updateScoreBox();
+						updateScoreBox(); // updates the score message
 					}
 					else
 					{
@@ -412,6 +410,25 @@ public class Display extends JFrame
 			resetCards = false;
 		}
 		updateScoreBox();
+		this.gameEnd = checkEnd();
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
